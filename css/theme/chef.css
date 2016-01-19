@@ -18,6 +18,27 @@ html * {
 .reveal small.middle * {
   vertical-align: middle; }
 
+.blue {
+  color: #53C6E2; }
+
+.green {
+  color: #71C5AF; }
+
+.yellow {
+  color: #FDB714; }
+
+.gold {
+  color: #F18B21; }
+
+.dgray {
+  color: #435464; }
+
+.gray {
+  color: #7D868C; }
+
+.black {
+  color: #000000; }
+
 /*********************************************
  * GLOBAL STYLES
  *********************************************/
