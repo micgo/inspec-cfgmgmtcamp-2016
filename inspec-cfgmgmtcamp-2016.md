@@ -1,32 +1,54 @@
+### Who Am I?
+
+* Michael Goetz
+* Solutions Engineering Manager @ Chef
+* mpgoetz@chef.io
+* @michaelpgoetz
+
+
+
 ### What is InSpec?
+
 ![what is inspec](images/what-is-inspec.svg)
 Note: You can use InSpec to examine any node in your infrastructure. The InSpec framework runs locally on the node being inspected. As input, it uses controls you write with the InSpec language. If it detects security, compliance or policy issues they are flagged in a log.
 
 
 
-### Why not ServerSpec?
+### Why not Serverspec?
+
+* Additional metadata (<span class="yellow">impact</span>, <span class="yellow">title</span>, <span class="yellow">description</span>) make it easier to describe & share controls
+
+* Focusing on multi-platform support (<span class="yellow">Windows</span>, <span class="yellow">Docker</span>, <span class="yellow">Linux</span>)
+
+* A command line interface (<span class="yellow">CLI</span>) is required for faster iteration of test code.
+Note: Serverspec is great. Mizzy is great. We needed more extensibility and a focus on multi-platform. We also wanted to bring in the metadata that compliance & security professionals require.
 
 
 
 ### Compliance is Everywhere
+
 |               |               |       |
 |:----:|:----:|:----:|
 | DoD Security Technical Implementation Guides (<span class="yellow">STIG</span>) | Payment Card Industry Data Security Standards (<span class="yellow">PCI</span>) | Sarbanes-Oxley (<span class="yellow">SOX</span>) |
 | Health Information Technology for Economic and Clinical Health (<span class="yellow">HITECH</span>) | Health Insurance Portability and Accountability Act of 1996 (<span class="yellow">HIPAA</span>) | Center for Internet Security (<span class="yellow">CIS</span>) |
+Note: Compliance and security mandates change often and new ones are created every day. You have to have a system that lets you quickly validate compliance and provide a report that others can consume.
 
 
 
 ### Spreadsheet
+
 ![alt text](images/spreadsheet.jpg)
 
 
 
 ### PDF
+
 ![alt text](images/pci_pdf.png)
 
 
 
 ### XML
+
 ```
 <Rule id="usgcb-rhel5desktop-rule-2.2.2.5.d" selected="false" weight="10.0" prohibitChanges="false" abstract="false" hidden="false" role="full" severity="unknown">
   <status date="2011-09-30">accepted</status>
@@ -43,3 +65,120 @@ Note: You can use InSpec to examine any node in your infrastructure. The InSpec 
 </Rule>
 ```
 Note: This is great for portability, but usually offers less flexibility, because these documents have highly-fixed schemas.
+
+
+
+### Anatomy of a control
+
+```
+describe sshd_config do
+  its('Port') { should eq('22') }
+end
+```
+* `describe` is a block that contains at least one test
+
+* `sshd_config` is an InSpec resource
+Note: There are dozens of pre-built resources. From apache_conf to yum.
+
+
+### Anatomy of a control
+
+```
+control 'sshd-8' do
+  impact 0.6
+  title 'Server: Configure the service port'
+  desc '
+    Always specify which port the SSH server should listen to.
+    Prevent unexpected settings.
+  '
+  describe sshd_config do
+    its('Port') { should eq('22') }
+  end
+end
+```
+* `'sshd-8'` is the name of the control
+
+* `control` must contain at least one `describe` block
+
+* `impact`, `title`, and `desc` define metadata to describe the control
+
+
+
+### Profiles
+Tests can be compiled into profiles, which can be reused and shared.
+
+```
+name: profile
+title: InSpec Example Profile
+maintainer: Chef Software, Inc.
+copyright: Chef Software, Inc.
+copyright_email: support@chef.io
+license: Apache 2 license
+summary: Demonstrates the use of InSpec Compliance Profile
+version: 1.0.0
+supports:
+  - os-family: linux
+```
+
+Package and redistribute using `gzip`, `bzip2`, or `xz`
+Note: Profiles can also be included in other profiles by referring to the name.
+
+
+### Custom Resources
+Just like Chef, you can define your own custom InSpec resources if you need them.
+
+```
+require 'yaml'
+
+class GordonConfig < Inspec.resource(1)
+  name 'gordon_config'
+
+  def initialize
+    @path = '/etc/gordon/config.yaml'
+    @file = inspec.file(@path)
+    return skip_resource "Can't find file \"#{@path}\"" if !@file.file?
+
+    @params = YAML.load(@file.content)
+  end
+
+  def method_missing(name)
+    @params[name.to_s]
+  end
+end
+```
+
+Include them in `libraries` folder in your profiles.
+
+
+
+### Running InSpec tests
+
+* Local
+```
+inspec exec test.rb
+```
+
+* Remote via SSH
+```
+inspec exec test.rb -t ssh://user@hostname
+```
+
+* Remote via WinRM
+```
+inspec exec test.rb -t winrm://Administrator@windowshost --password 'password'
+```
+
+* Docker, Docker, Docker
+```
+inspec exec test.rb -t docker://container_id
+```
+
+
+
+### Visualize results with Chef Compliance
+
+![alt text](images/compliance_dashboard.png)
+
+
+
+### Demo

@@ -1,0 +1,22 @@
+---
+driver:
+  name: vagrant
+  synced_folders:
+  - ["data/%{instance_name}", "/opt/instance_data"]
+
+provisioner:
+  name: chef_zero
+
+# Uncomment the following verifier to leverage Inspec instead of Busser (the
+# default verifier)
+verifier:
+  name: inspec
+
+platforms:
+  - name: ubuntu-12.04
+
+suites:
+  - name: default
+    run_list:
+      - recipe[compliance::default]
+    attributes:
