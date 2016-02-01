@@ -1,12 +1,12 @@
 #
-# Cookbook Name:: compliance
+# Cookbook Name:: ssh
 # Spec:: default
 #
 # Copyright (c) 2016 The Authors, All Rights Reserved.
 
 require 'spec_helper'
 
-describe 'compliance::default' do
+describe 'ssh::client' do
   context 'When all attributes are default, on an unspecified platform' do
     let(:chef_run) do
       runner = ChefSpec::ServerRunner.new

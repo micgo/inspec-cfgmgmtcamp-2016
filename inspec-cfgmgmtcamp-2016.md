@@ -75,9 +75,9 @@ describe sshd_config do
   its('Port') { should eq('22') }
 end
 ```
-* `describe` is a block that contains at least one test
+* <span class="yellow">`describe`</span> is a block that contains at least one test
 
-* `sshd_config` is an InSpec resource
+* <span class="yellow">`sshd_config`</span> is an InSpec resource
 Note: There are dozens of pre-built resources. From apache_conf to yum.
 
 
@@ -96,17 +96,24 @@ control 'sshd-8' do
   end
 end
 ```
-* `'sshd-8'` is the name of the control
+* <span class="yellow">`'sshd-8'`</span> is the name of the control
 
-* `control` must contain at least one `describe` block
+* <span class="yellow">`control`</span> must contain at least one `describe` block
 
-* `impact`, `title`, and `desc` define metadata to describe the control
+* <span class="yellow">`impact`</span>, <span class="yellow">`title`</span>, and <span class="yellow">`desc`</span> define metadata to describe the control
 
 
 
 ### Profiles
-Tests can be compiled into profiles, which can be reused and shared.
+![alt text](images/profile_structure.png)
 
+* <span class="yellow">`inspec.yml`</span> - the profile description (required)
+* <span class="yellow">`controls`</span> - contains all tests (required)
+* <span class="yellow">`libraries`</span> - contains InSpec resource extensions (optional)
+
+
+
+### Profile Manifest
 ```
 name: profile
 title: InSpec Example Profile
@@ -120,8 +127,77 @@ supports:
   - os-family: linux
 ```
 
-Package and redistribute using `gzip`, `bzip2`, or `xz`
-Note: Profiles can also be included in other profiles by referring to the name.
+* <span class="yellow">`name`</span> - Identifier of the profile (required)
+* Profiles can also be included in other profiles by referring to the name.
+Note: **name** - Identifier of the profile (required)</br>**title** - Human-readable name of the profile (optional)</br>**maintainer** - Name of the profile maintainer (optional)</br>**copyright** - Copyright holder (optional)</br>**copyright_email** - Support contact for profile (optional)</br>**license** - License of the profile (optional)</br>**summary** - One-line summary of the profile (optional)</br>**description** - Description of the profile (optional)</br>**version** - Version of the profile (optional)</br>**supports** - A list of supported targets (optional)
+
+
+
+### Profile OS Support
+
+```
+supports:
+  // Runs on any version of Debian Linux
+  - os-name: debian
+
+  // Only runs on Ubuntu 14.04
+  - os-name: ubuntu
+    release: 14.04
+
+  // Targets RedHat, CentOS, Oracle Linux ...
+  - os-family: redhat
+```
+Restrict your profiles to only support targeted operating systems.
+
+
+
+### Profile Inheritance
+```
+include_controls 'cis-level-1' do
+
+  skip_control "cis-fs-2.1"
+  skip_control "cis-fs-2.2"
+
+  control "cis-fs-2.7" do
+    impact 1.0
+  ...
+
+end
+```
+Include all controls from external profiles and skip specific controls if necessary.
+
+
+
+### Profile Control Inclusion
+```
+require_controls 'cis-level-1' do
+
+  control "cis-fs-2.1"
+  control "cis-fs-2.2"
+
+end
+```
+If you just need a few controls from a profile, you can require just specific controls.
+
+
+
+### Profile Validation & Distribution
+```
+$ inspec check examples/profile
+```
+
+Check your profile syntax with the <span class="yellow">`inspec check`</span> command.
+
+```
+# will generate a example-profile.tar.gz
+$ inspec archive examples/profile
+
+# will generate a example-profile.zip
+$ inspec archive examples/profile --zip
+```
+
+Package and redistribute using <span class="yellow">`gzip`</span>, <span class="yellow">`bzip2`</span>, or <span class="yellow">`xz`</span>
+
 
 
 ### Custom Resources
@@ -147,7 +223,7 @@ class GordonConfig < Inspec.resource(1)
 end
 ```
 
-Include them in `libraries` folder in your profiles.
+Include them in <span class="yellow">`libraries`</span> folder in your profiles.
 
 
 
@@ -182,3 +258,17 @@ inspec exec test.rb -t docker://container_id
 
 
 ### Demo
+
+
+
+### More Information
+
+* The Road to InSpec - https://www.chef.io/blog/2015/11/04/the-road-to-inspec/
+* InSpec - https://github.com/chef/inspec
+* InSpec Reference - https://docs.chef.io/inspec_reference.html
+
+
+
+### Thank You!
+
+What questions do you have?
